@@ -1,0 +1,4 @@
+Cafe,2.50
+Te,1.80
+Pastel,3.20
+Muffin,2.00

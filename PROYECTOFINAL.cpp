@@ -1,0 +1,162 @@
+//Codigo borrador (unión de aportación de Stephanie y Lourdes)
+#include <iostream>
+#include <fstream>
+#include <string>
+#include <iomanip>
+using namespace std;
+
+// Clases
+class Producto {
+private:
+    string nombre;
+    double precio;
+
+public:
+    // Constructores
+    Producto() : nombre(""), precio(0.0) {}
+    Producto(string n, double p) : nombre(n), precio(p) {}
+
+    // Métodos
+    string getNombre() { return nombre; } 
+    double getPrecio() { return precio; } 
+};
+
+class Cafeteria {
+private:
+    Producto menu[100];
+    int numProductos;
+    string nombre;
+
+public:
+    // Constructores
+    Cafeteria(string n) : nombre(n), numProductos(0) {}
+
+    // Métodos
+    void agregarProducto(string n, double p) {
+        Producto nuevoProducto(n, p);
+        menu[numProductos++] = nuevoProducto;
+    }
+
+    void imprimirMenu() {
+        cout << "***Menu de la cafeteria" << nombre << ": Cafeteria para los enamorados de Paris" << endl;
+        for (int i = 0; i < numProductos; i++) {
+            cout << menu[i].getNombre() << ": Q" << menu[i].getPrecio() << endl;
+        }
+    }
+
+    Producto* getMenu() {
+        return menu;
+    }
+
+    int getNumProductos() { 
+        return numProductos;
+    }
+};
+
+// Funciones
+void cargarMenuDesdeArchivo(Cafeteria& cafeteria, string nombreArchivo) {
+    ifstream archivo(nombreArchivo);
+    if (archivo.is_open()) {
+        string linea;
+        while (getline(archivo, linea)) {
+            size_t pos = linea.find(',');
+            if (pos != string::npos) {
+                string nombre = linea.substr(0, pos);
+                double precio = stod(linea.substr(pos + 1));
+                cafeteria.agregarProducto(nombre, precio);
+            }
+        }
+        archivo.close();
+    } else {
+        cout << "No se pudo abrir el archivo " << nombreArchivo << ", se creará uno nuevo." << endl;
+        ofstream nuevoArchivo(nombreArchivo); // Se crea un nuevo archivo
+        nuevoArchivo.close();
+    }
+}
+
+void guardarMenuEnArchivo(Cafeteria& cafeteria, string nombreArchivo) {
+    ofstream archivo(nombreArchivo);
+    if (archivo.is_open()) {
+        for (int i = 0; i < cafeteria.getNumProductos(); i++) {
+            archivo << cafeteria.getMenu()[i].getNombre() << "," << cafeteria.getMenu()[i].getPrecio() << endl;
+        }
+        archivo.close();
+        cout << "Menu guardado en el archivo correspondiente " << nombreArchivo << endl;
+    } else {
+        cout << "No se pudo abrir el archivo " << nombreArchivo << " para escritura" << endl;
+    }
+}
+double calcularTotal(Producto* orden, int numProductos) {
+    double total = 0.0;
+    for (int i = 0; i < numProductos; i++) {
+        total += orden[i].getPrecio();
+    }
+    return total;
+}
+void guardarPedidosEnArchivo(Producto* pedidos, int numPedidos, string nombreArchivo) {
+    ofstream archivo(nombreArchivo, ios::app); // Se abre en modo append para no sobreescribir
+    if (archivo.is_open()) {
+        for (int i = 0; i < numPedidos; i++) {
+            archivo << pedidos[i].getNombre() << "," << pedidos[i].getPrecio() << endl;
+        }
+        archivo << "Total: " << calcularTotal(pedidos, numPedidos) << endl;
+        archivo.close();
+        cout << "Pedidos guardados en el archivo correspondiente: " << nombreArchivo << endl;
+    } else {
+        cout << "No se pudo abrir el archivo " << nombreArchivo << " para escritura" << endl;
+    }
+}
+
+int tomarOrden(Cafeteria& cafeteria, Producto* orden) {
+    int numProductos = 0;
+    string entrada;
+    cout << "Ingrese los nombres de los productos uno por uno (o 'terminar' para finalizar): ";
+    getline(cin, entrada);
+
+    while (entrada != "terminar") {
+        bool encontrado = false;
+        for (int i = 0; i < cafeteria.getNumProductos(); i++) {
+            if (cafeteria.getMenu()[i].getNombre() == entrada) {
+                orden[numProductos++] = cafeteria.getMenu()[i];
+                encontrado = true;
+                break;
+            }
+        }
+        if (!encontrado) {
+            cout << "Producto '" << entrada << "' no se encuentra en el menu" << endl;
+        }
+        cout << "Ingrese el siguiente producto (o 'terminar' para finalizar): ";
+        getline(cin, entrada);
+    }
+
+    return numProductos;
+}
+
+int main() {
+    Cafeteria miCafeteria(" Los alamos***");
+
+    // Cargar menú desde archivo
+    cargarMenuDesdeArchivo(miCafeteria, "menu.txt");
+
+    // Imprimir menú
+    //cout << left << setw(20) << "Producto: " << "Precio: " << endl;
+    miCafeteria.imprimirMenu();
+
+    // Tomar orden del usuario
+    Producto ordenUsuario[100];
+    int numProductosOrden = tomarOrden(miCafeteria, ordenUsuario);
+
+    // Calcular total de la orden
+    double total = calcularTotal(ordenUsuario, numProductosOrden);
+    cout << "Total a pagar: Q." << fixed << setprecision(2) << total << endl;
+
+    // Guardar pedidos en archivo si el usuario lo desea
+    char guardarPedidos;
+    cout << "Desea guardar los pedidos en un archivo? (s/n): ";
+    cin >> guardarPedidos;
+    if (tolower(guardarPedidos) == 's') {
+        guardarPedidosEnArchivo(ordenUsuario, numProductosOrden, "pedidos_guardados.txt");
+    }
+
+    return 0;
+}
