@@ -1,0 +1,146 @@
+#include <iostream>
+#include <vector>
+#include <string>
+#include <fstream>
+using namespace std;
+
+class Alimento {
+private:
+    string nombre;
+    double precio;
+
+public:
+    Alimento(string n, double p) : nombre(n), precio(p) {}
+
+    string getNombre() const { return nombre; }
+    double getPrecio() const { return precio; }
+
+    void mostrarInformacion() const {
+        cout << nombre << ": Q" << precio << endl;
+    }
+
+    string obtenerInformacion() const {
+        return nombre + ": Q" + to_string(precio);
+    }
+};
+
+class Menu {
+private:
+    vector<Alimento> items;
+
+public:
+    void agregarAlimento(const Alimento& a) {
+        items.push_back(a);
+    }
+
+    void mostrarMenu() const {
+        for (size_t i = 0; i < items.size(); ++i) {
+            cout << i + 1 << ". ";
+            items[i].mostrarInformacion();
+        }
+    }
+
+    const Alimento& obtenerAlimento(int indice) const {
+        return items.at(indice);
+    }
+
+    size_t obtenerTamano() const {
+        return items.size();
+    }
+};
+
+class Bebida : public Alimento {
+private:
+    bool caliente;
+
+public:
+    Bebida(string n, double p, bool c) : Alimento(n, p), caliente(c) {}
+
+    void mostrarInformacion() const {
+        Alimento::mostrarInformacion();
+        cout << (caliente ? " (Caliente)" : " (Fría)") << endl;
+    }
+
+    string obtenerInformacion() const {
+        return Alimento::obtenerInformacion() + (caliente ? " (Caliente)" : " (Fría)");
+    }
+};
+
+class Pedido {
+private:
+    string nombreCliente;
+    vector<Alimento> items;
+    double total;
+
+public:
+    Pedido(string nombre) : nombreCliente(nombre), total(0.0) {}
+
+    void agregarItem(const Alimento& a) {
+        items.push_back(a);
+        total += a.getPrecio();
+    }
+
+    double obtenerTotal() const {
+        return total;
+    }
+
+    void mostrarPedido() const {
+        cout << "Pedido de " << nombreCliente << ":" << endl;
+        for (const auto& item : items) {
+            item.mostrarInformacion();
+        }
+        cout << "Total: Q" << total << endl;
+    }
+
+    void guardarPedido(const string& nombreArchivo) const {
+        ofstream archivo(nombreArchivo, ios::app);
+        if (archivo.is_open()) {
+            archivo << "Pedido de " << nombreCliente << ":\n";
+            for (const auto& item : items) {
+                archivo << item.obtenerInformacion() << endl;
+            }
+            archivo << "Total: Q" << total << "\n\n";
+            archivo.close();
+            cout << "Pedido guardado en " << nombreArchivo << endl;
+        } else {
+            cerr << "No se pudo abrir el archivo " << nombreArchivo << endl;
+        }
+    }
+};
+
+int main() {
+    Alimento pastel("Pastel", 3.20);
+    Alimento muffin("Muffin", 2.00);
+    Bebida cafe("Café", 2.50, true);
+    Bebida te("Té", 1.80, true);
+
+    Menu menu;
+    menu.agregarAlimento(pastel);
+    menu.agregarAlimento(muffin);
+    menu.agregarAlimento(cafe);
+    menu.agregarAlimento(te);
+
+    string nombreCliente;
+    cout << "Ingrese su nombre: ";
+    getline(cin, nombreCliente);
+
+    Pedido pedido(nombreCliente);
+
+    int opcion;
+    do {
+        cout << "Menú de la cafetería en quetzales:" << endl;
+        menu.mostrarMenu();
+        cout << "Seleccione un elemento (0 para finalizar): ";
+        cin >> opcion;
+        if (opcion > 0 && opcion <= menu.obtenerTamano()) {
+            pedido.agregarItem(menu.obtenerAlimento(opcion - 1));
+        } else if (opcion != 0) {
+            cout << "Opción inválida. Por favor, seleccione nuevamente." << endl;
+        }
+    } while (opcion != 0);
+
+    pedido.mostrarPedido();
+    pedido.guardarPedido("pedido.txt");
+
+    return 0;
+}
