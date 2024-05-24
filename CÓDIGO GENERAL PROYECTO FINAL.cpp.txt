@@ -1,8 +1,25 @@
+#include <fstream>
+#include <string>
+#include <iomanip>
+#include <mysql.h>
 #include <iostream>
 
 using namespace std;
 
-int main(){
-	cout<<"Hola Mundo"<<endl;
-	return 0;
-}
+// Clase Producto
+class Producto {
+protected:
+    string nombre;
+    double precio;
+
+public:
+    // Constructores
+    Producto() : nombre(""), precio(0.0) {}
+    Producto(string n, double p) : nombre(n), precio(p) {}
+
+    // Métodos
+    string getNombre() { return nombre; }
+    double getPrecio() { return precio; }
+    void setNombre(string n) { nombre = n; }
+    void setPrecio(double p) { precio = p; }
+};    
