@@ -104,7 +104,23 @@ void guardarPedidosEnArchivo(Producto* pedidos, int numPedidos, string nombreArc
         cout << "No se pudo abrir el archivo " << nombreArchivo << " para escritura" << endl;
     }
 }
-
+//Funcion para poner el menu en el archivo
+void guardarMenuEnArchivo(Cafeteria& cafeteria, string nombreArchivo) {//pasa parametros
+    ofstream archivo(nombreArchivo);
+    if (archivo.is_open()) {//verificar si el archivo está abierto 
+        //ciclo for para que se termine después del numero de productos ingresados en el menu
+        for (int i = 0; i < cafeteria.getNumProductos(); i++) {
+            archivo << cafeteria.getMenu()[i].getNombre() << "," << cafeteria.getMenu()[i].getPrecio() << endl;
+            //el ciclo for va escribiendo lo que hay en el menú: nombre y precio
+        }
+        archivo.close();//se cierra el archivo
+        cout << "Menu guardado en el archivo correspondiente " << nombreArchivo << endl;//muestra el mensaje
+    }
+    else {
+        //si no se logra abrir el archivo mostrar el siguiente mensaje.
+        cout << "No se pudo abrir el archivo " << nombreArchivo << " para escritura" << endl;
+    }
+}
 int bdtablaclientes(){
     string nombrec, telefonoc, emailc; //valores a insertar 
 
