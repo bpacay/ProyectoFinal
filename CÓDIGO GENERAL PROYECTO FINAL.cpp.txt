@@ -60,3 +60,47 @@ public:
         }
         return total;
     }
+void cargarMenuDesdeArchivo(Cafeteria& cafeteria, string nombreArchivo) {//se pasan parametros
+    ifstream archivo(nombreArchivo);
+    if (archivo.is_open()) {//se verifica que el archivo este abierto
+        string linea;//y se escribe todo lo que haya en él.
+        while (getline(archivo, linea)) {
+            size_t pos = linea.find(',');//Cada cosa separado por una coma
+            if (pos != string::npos) {
+                string nombre = linea.substr(0, pos);
+                double precio = stod(linea.substr(pos + 1));//y para posicionar bien los datos
+                cafeteria.agregarProducto(nombre, precio);
+            }
+        }
+        archivo.close();//se cierra el archivo
+    }
+    else {//si no se abre el archivo se creará uno y se avisará
+        cout << "No se pudo abrir el archivo " << nombreArchivo << ", se creará uno nuevo." << endl;
+        ofstream nuevoArchivo(nombreArchivo); // Se crea un nuevo archivo
+        nuevoArchivo.close();
+    }
+}
+//Funcion para calcular el total del pedido
+double calcularTotal(Producto* orden, int numProductos) {//funcion tipo double, pasa parametros
+    double total = 0.0;//inicializamos el total final
+    for (int i = 0; i < numProductos; i++) {//ciclo for que se termina hasta que llegue al numero de productos ingresados
+        total += orden[i].getPrecio();//va sumando cada uno de los precios en la variable total
+    }
+    return total;//retornar el total final
+}
+//Esta función es para escribir los pedidos y el total en otro archivos 
+void guardarPedidosEnArchivo(Producto* pedidos, int numPedidos, string nombreArchivo) {//pasa parametros
+    ofstream archivo(nombreArchivo, ios::app); // Se abre en modo append para no sobreescribir
+    if (archivo.is_open()) {
+        for (int i = 0; i < numPedidos; i++) {
+            //ir pasando por cada uno de los pedidos e ir escribiendolos en el archivo nuevo
+            archivo << pedidos[i].getNombre() << "," << pedidos[i].getPrecio() << endl;
+        }
+        archivo << "Total: " << calcularTotal(pedidos, numPedidos) << endl;//imprimir también el total
+        archivo.close();//se cierra el archivo
+        cout << "Pedidos guardados en el archivo correspondiente: " << nombreArchivo << endl;//imprimir un mensaje
+    }
+    else {
+        cout << "No se pudo abrir el archivo " << nombreArchivo << " para escritura" << endl;
+    }
+}
