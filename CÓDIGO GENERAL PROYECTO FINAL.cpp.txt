@@ -105,6 +105,44 @@ void guardarPedidosEnArchivo(Producto* pedidos, int numPedidos, string nombreArc
     }
 }
 
+class Cafeteria : public Producto {
+private:
+    Producto menu[100];
+    int numProductos;
+
+public:
+    // Constructores
+    Cafeteria(string n, double p) : Producto(n, p), numProductos(0) {}
+
+    // Métodos
+    void agregarProducto(string n, double p) {
+        Producto nuevoProducto(n, p);
+        menu[numProductos++] = nuevoProducto;
+    }
+
+    void imprimirMenu() {
+        cout << "*Menu de la cafeteria " << getNombre() << ": Cafeteria para los enamorados de Paris*" << endl;
+        for (int i = 0; i < numProductos; i++) {
+            cout << menu[i].getNombre() << ": Q" << menu[i].getPrecio() << endl;
+        }
+    }
+
+    Producto* getMenu() {
+        return menu;
+    }
+
+    int getNumProductos() {
+        return numProductos;
+    }
+
+    double calcularTotal() {
+        double total = 0.0;
+        for (int i = 0; i < numProductos; i++) {
+            total += menu[i].getPrecio();
+        }
+        return total;
+    }
+
 int bdtablaclientes(){
     string nombrec, telefonoc, emailc; //valores a insertar 
 
