@@ -104,3 +104,48 @@ void guardarPedidosEnArchivo(Producto* pedidos, int numPedidos, string nombreArc
         cout << "No se pudo abrir el archivo " << nombreArchivo << " para escritura" << endl;
     }
 }
+
+int bdtablaclientes(){
+    string nombrec, telefonoc, emailc; //valores a insertar 
+
+    int q_estado; // constante para saber el estado de la consulta y conocer si resulto en exitosa o no
+
+    MYSQL* obj; //variable en terminos de MYSQL
+
+    obj = mysql_init(0); 
+
+    obj = mysql_real_connect(obj, "localhost", "root", "1234", "cafeteria", 3306, NULL, 0); // realizarmos la conexión a MySQL
+
+    if (obj)
+    {
+        cout << "conexion exitosa... " << endl;
+
+        cout << "ingresar nombre del cliente: ";
+        cin >> nombrec;
+        cout << "ingresar nombre del telefono: ";
+        cin >> telefonoc;
+        cout << "ingresar nombre del email: ";
+        cin >> emailc;
+        //ingresamos datos que queremos insertar en nuestra tabla
+
+        string insert = "INSERT INTO clientes(nombre,telefono,email)VALUES('" + nombrec + "','" + telefonoc + "','" + emailc + "');";
+        // realizamos de manera de CRUD y referenciamos los datos ingresados anterior mente como el nombre y email
+        const char* i = insert.c_str();
+        // convertimos los datos de string a caracteres, para que mysql los acepte
+        q_estado = mysql_query(obj, i);
+        //verficamos si se inserta correctamente
+        if (!q_estado)
+        {
+            cout << "... Insert exitoso" << endl;
+        }
+        else
+        {
+            cout << "... error de Insert" << endl;
+        }
+        // nos dice si ingresamos los datos a la tabla de manera correcta
+    }
+    else
+    {
+        cout << "error en la conexion... " << endl;
+    }
+}
