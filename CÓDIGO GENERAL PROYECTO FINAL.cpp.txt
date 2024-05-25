@@ -149,3 +149,36 @@ int bdtablaclientes(){
         cout << "error en la conexion... " << endl;
     }
 }
+
+int main()
+{
+    bdtablaclientes();
+
+    Cafeteria miCafeteria("Los alamos", 0.0);
+
+    // Cargar menú desde archivo
+    cargarMenuDesdeArchivo(miCafeteria, "menu.txt");
+
+    // Imprimir menú
+    miCafeteria.imprimirMenu();
+
+    // Tomar orden del usuario
+    Producto ordenUsuario[100];
+    int numProductosOrden = tomarOrden(miCafeteria, ordenUsuario);
+
+    // Calcular total de la orden
+    double total = calcularTotal(ordenUsuario, numProductosOrden);
+    cout << "Total a pagar: Q." << fixed << setprecision(2) << total << endl;
+
+    // Guardar pedidos en archivo si el usuario lo desea
+    char guardarPedidos;
+    cout << "Desea guardar los pedidos en un archivo? (s/n): ";
+    cin >> guardarPedidos;
+    if (tolower(guardarPedidos) == 's') {
+        guardarPedidosEnArchivo(ordenUsuario, numProductosOrden, "pedidos_guardados.txt");
+    }
+
+
+
+    return 0;
+}
